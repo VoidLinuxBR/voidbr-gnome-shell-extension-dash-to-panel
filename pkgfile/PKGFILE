@@ -5,7 +5,7 @@ _uuid=dash-to-panel@jderose9.github.com
 _upstream="https://github.com/home-sweet-gnome/dash-to-panel"
 pkgdesc="Dash to Panel: barra única (apps + bandeja + relógio) para o GNOME Shell, instalada no sistema"
 pkgver=74
-pkgrel=1
+pkgrel=2
 provides=()  # "eu SOU o $pkgname pkg1, pra quem depender deles"
 replaces=()  # "remove o pkg1 pkg2 antigo automaticamente quando eu instalar"
 conflicts=() # "nunca me deixe coexistir com o pkg1 pkg2 original"
@@ -13,9 +13,13 @@ arch=('any')
 license=('GPL-2.0-or-later')
 #url="ssh://git@github.com/voidlinuxbr/${pkgname}"
 url="https://github.com/voidlinuxbr/${pkgname}"
-source=("git+${_upstream}.git#tag=v${pkgver}")
-md5sums=('SKIP')
+source=(
+	"git+${_upstream}.git#tag=v${pkgver}"
+	"fix-drag-placeholder.patch" # VoidBR: app arrastado para a barra aparece na hora
+)
+md5sums=('SKIP' 'SKIP')
 makedepends=(
+	patch
 	make
 	gettext # msgfmt (traduções .po -> .mo)
 	glib    # glib-compile-schemas
@@ -31,6 +35,13 @@ if [ -e "${pkgname}.install" ]; then
 elif [ -e "pkgbuild.install" ]; then
 	install=pkgfile.install
 fi
+
+prepare() {
+	cd "${srcdir}/dash-to-panel"
+	# Ao arrastar um app para a barra, o _redisplay() quebrava no marcador de
+	# posição do arrasto (DragPlaceholderItem) e o ícone só aparecia depois.
+	patch -p1 <"${srcdir}/fix-drag-placeholder.patch"
+}
 
 package() {
 	cd "${srcdir}/dash-to-panel"

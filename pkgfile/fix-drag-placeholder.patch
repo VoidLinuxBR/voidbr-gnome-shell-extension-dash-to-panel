@@ -1,0 +1,17 @@
+diff --git a/src/taskbar.js b/src/taskbar.js
+index a1ed7b4..fa5b2d9 100644
+--- a/src/taskbar.js
++++ b/src/taskbar.js
+@@ -1040,7 +1040,11 @@ export const Taskbar = class extends EventEmitter {
+     }
+ 
+     //get the currently displayed appIcons
+-    let currentAppIcons = this._getTaskbarIcons()
++    // (skip the drag placeholder: it is not a real taskbar item and has no
++    // animateOutAndDestroy(); it is removed by _endDrag() after the drop)
++    let currentAppIcons = this._getTaskbarIcons().filter(
++      (actor) => !(actor instanceof DragPlaceholderItem),
++    )
+     let expectedAppInfos = this.getAppInfos()
+ 
+     //remove the appIcons which are not in the expected apps list
